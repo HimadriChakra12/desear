@@ -73,8 +73,8 @@ ps:
 	docker compose ps
 
 health:
-	@curl -sf http://localhost:9090/health && echo
-	@curl -sf http://localhost:9090/categories && echo
+	@curl -sf http://localhost:8000/api/categories >/dev/null && echo "wrapper: OK"
+	@curl -sfo /dev/null -w "web UI: HTTP %{http_code}\n" http://localhost:8000/
 
 # ---------------------------------------------------------------------
 # Backup / restore

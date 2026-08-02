@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>search</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <header>
+      <div class="brand">search<span class="cursor">_</span></div>
+      <form id="search-form" autocomplete="off">
+        <input id="q" type="text" placeholder="/ to search" spellcheck="false">
+      </form>
+      <div class="statusline">
+        <span id="result-meta"></span>
+        <button id="help-btn" title="keybindings (?)">?</button>
+      </div>
+    </header>
+
+    <nav id="tabs"></nav>
+
+    <main id="results"></main>
+
+    <div id="empty-state" class="empty-state hidden">
+      <p>type <kbd>/</kbd> then your query, hit <kbd>enter</kbd></p>
+      <p class="dim">j/k move &middot; o/enter open &middot; 1-9 jump &middot; gg/G top/bottom &middot; tab/1-0 switch category</p>
+    </div>
+  </div>
+
+  <div id="help-overlay" class="overlay hidden">
+    <div class="overlay-box">
+      <h2>keybindings</h2>
+      <table>
+        <tr><td><kbd>/</kbd></td><td>focus search box</td></tr>
+        <tr><td><kbd>esc</kbd></td><td>blur search box / close this</td></tr>
+        <tr><td><kbd>j</kbd> / <kbd>k</kbd></td><td>move selection down / up</td></tr>
+        <tr><td><kbd>gg</kbd></td><td>jump to first result</td></tr>
+        <tr><td><kbd>G</kbd></td><td>jump to last result</td></tr>
+        <tr><td><kbd>enter</kbd> / <kbd>o</kbd></td><td>open selected result</td></tr>
+        <tr><td><kbd>shift+enter</kbd> / <kbd>O</kbd></td><td>open in new tab</td></tr>
+        <tr><td><kbd>1</kbd>&ndash;<kbd>9</kbd></td><td>jump straight to result N</td></tr>
+        <tr><td><kbd>[</kbd> / <kbd>]</kbd></td><td>previous / next category tab</td></tr>
+        <tr><td><kbd>1</kbd>&ndash;<kbd>0</kbd> (with <kbd>ctrl</kbd>)</td><td>jump to category by position</td></tr>
+        <tr><td><kbd>?</kbd></td><td>toggle this help</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
