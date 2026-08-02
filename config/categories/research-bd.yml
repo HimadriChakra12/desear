@@ -1,0 +1,32 @@
+# Category: research-bd
+# Research focused on Bangladesh (local journals, gov, university output)
+
+name: research-bd
+description: "Research search scoped toward Bangladeshi sources"
+
+searx_categories:
+  - general
+  - science
+
+engines:
+  - google
+  - bing
+  - duckduckgo
+  - google scholar
+
+# Preferred domains - wrapper appends "site:" OR-groups built from this
+# list to the raw query, biasing results without hard-restricting them.
+prefer_sites:
+  - "*.gov.bd"
+  - "*.ac.bd"
+  - "*.edu.bd"
+  - banglajol.info
+  - banbeis.gov.bd
+  - bracu.ac.bd
+  - buet.ac.bd
+  - du.ac.bd
+
+blacklist:
+  - pinterest.com
+  - quora.com
+  - answers.com

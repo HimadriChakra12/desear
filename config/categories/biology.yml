@@ -1,0 +1,23 @@
+name: biology
+description: "Biology-focused search"
+
+searx_categories:
+  - science
+
+engines:
+  - pubmed
+  - google scholar
+  - crossref
+  - google
+  - bing
+
+prefer_sites:
+  - ncbi.nlm.nih.gov
+  - biorxiv.org
+  - nature.com
+  - cell.com
+
+blacklist:
+  - pinterest.com
+  - quora.com
+  - brainly.com

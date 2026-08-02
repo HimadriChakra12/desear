@@ -1,0 +1,79 @@
+# Base SearXNG settings.
+# The wrapper service decides WHICH engines/categories/blacklist to use
+# per request - this file just needs to enable enough engines and
+# categories for all 10 of your topic profiles to draw from.
+#
+# Full reference: https://docs.searxng.org/admin/settings/settings.html
+
+use_default_settings: true
+
+general:
+  instance_name: "personal-multisearch"
+  privacypolicy_url: false
+  donation_url: false
+  contact_url: false
+  enable_metrics: false
+
+search:
+  safe_search: 0
+  autocomplete: ""
+  default_lang: "en"
+  formats:
+    - html
+    - json          # wrapper needs JSON output
+
+server:
+  # CHANGE THIS - generate with: openssl rand -hex 32
+  secret_key: "REPLACE_ME_WITH_RANDOM_SECRET"
+  limiter: false      # limiter handled at the wrapper layer, not here
+  image_proxy: false
+  port: 8080
+  bind_address: "0.0.0.0"
+
+redis:
+  url: redis://redis:6379/0
+
+# Enable the engines your categories will actually reference.
+# (use_default_settings pulls in searxng's full default engine list,
+# these overrides just make sure the ones we care about are ON)
+engines:
+  - name: google
+    disabled: false
+  - name: google scholar
+    disabled: false
+  - name: bing
+    disabled: false
+  - name: duckduckgo
+    disabled: false
+  - name: brave
+    disabled: false
+  - name: startpage
+    disabled: false
+  - name: arxiv
+    disabled: false
+  - name: crossref
+    disabled: false
+  - name: pubmed
+    disabled: false
+  - name: semantic scholar
+    disabled: false
+  - name: wikipedia
+    disabled: false
+  - name: wikibooks
+    disabled: false
+  - name: stackoverflow
+    disabled: false
+  - name: github
+    disabled: false
+  - name: codeberg
+    disabled: false
+
+# The "hostnames" plugin lets us block/replace results by domain.
+# We keep this EMPTY here - real blacklists live per-category in
+# /config/categories/*.yml and are enforced by the wrapper, not searxng
+# itself. This avoids having to restart/reconfigure searxng every time
+# you tweak one category's blacklist.
+enabled_plugins:
+  - "Hash plugin"
+  - "Self Information"
+  - "Tracker URL remover"

@@ -1,0 +1,28 @@
+name: c-lua
+description: "C and Lua programming search"
+
+searx_categories:
+  - it
+  - general
+
+engines:
+  - stackoverflow
+  - github
+  - codeberg
+  - google
+  - bing
+  - duckduckgo
+
+prefer_sites:
+  - man7.org
+  - lua.org
+  - lua-users.org
+  - cppreference.com   # covers C too, harmless to include
+  - github.com
+  - stackoverflow.com
+
+blacklist:
+  - pinterest.com
+  - quora.com
+  - w3schools.com   # remove this line if you actually like w3schools
+  - geeksforgeeks.org  # optional, drop if you want it back

@@ -1,0 +1,22 @@
+name: chemistry
+description: "Chemistry-focused search"
+
+searx_categories:
+  - science
+
+engines:
+  - pubmed
+  - google scholar
+  - crossref
+  - google
+  - bing
+
+prefer_sites:
+  - pubs.acs.org
+  - pubchem.ncbi.nlm.nih.gov
+  - chemistry.stackexchange.com
+
+blacklist:
+  - pinterest.com
+  - quora.com
+  - brainly.com

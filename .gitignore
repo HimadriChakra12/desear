@@ -1,0 +1,5 @@
+data/
+backups/*.tar.gz
+!backups/.gitkeep
+config/searxng/settings.yml
+.backup-worktree/

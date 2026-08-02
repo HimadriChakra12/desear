@@ -1,0 +1,26 @@
+name: cpp
+description: "C++ programming search"
+
+searx_categories:
+  - it
+  - general
+
+engines:
+  - stackoverflow
+  - github
+  - codeberg
+  - google
+  - bing
+  - duckduckgo
+
+prefer_sites:
+  - cppreference.com
+  - isocpp.org
+  - stackoverflow.com
+  - github.com
+
+blacklist:
+  - pinterest.com
+  - quora.com
+  - w3schools.com
+  - geeksforgeeks.org

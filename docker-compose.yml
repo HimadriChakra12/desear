@@ -1,0 +1,61 @@
+version: "3.8"
+
+# ------------------------------------------------------------------
+# Personal multi-category search engine
+#   searxng  -> does the actual metasearching (Google/Bing/DDG/etc.)
+#   redis    -> cache/ratelimit backend required by searxng
+#   wrapper  -> tiny API that applies YOUR per-category config
+#               (engines, categories, site blacklist) on top of searxng
+# ------------------------------------------------------------------
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: search-redis
+    restart: unless-stopped
+    command: ["redis-server", "--save", "60", "1", "--appendonly", "yes"]
+    volumes:
+      - ./data/redis:/data
+    networks:
+      - searchnet
+
+  searxng:
+    image: searxng/searxng:latest
+    container_name: search-searxng
+    restart: unless-stopped
+    depends_on:
+      - redis
+    environment:
+      - SEARXNG_BASE_URL=http://localhost:8080/
+      - SEARXNG_REDIS_URL=redis://redis:6379/0
+    volumes:
+      - ./config/searxng:/etc/searxng:rw
+      - ./data/searxng:/var/cache/searxng:rw
+    networks:
+      - searchnet
+    # Not published to the host on purpose - only the wrapper talks to it.
+    # Uncomment below if you want to hit raw searxng directly for debugging.
+    # ports:
+    #   - "8080:8080"
+
+  wrapper:
+    build: ./wrapper
+    container_name: search-wrapper
+    restart: unless-stopped
+    depends_on:
+      - searxng
+    environment:
+      - SEARXNG_URL=http://searxng:8080
+      - CATEGORIES_DIR=/config/categories
+      - DATA_DIR=/data
+    volumes:
+      - ./config/categories:/config/categories:ro
+      - ./data/wrapper:/data:rw
+    ports:
+      - "9090:9090"
+    networks:
+      - searchnet
+
+networks:
+  searchnet:
+    driver: bridge

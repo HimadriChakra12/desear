@@ -1,0 +1,23 @@
+name: physics
+description: "Physics-focused search"
+
+searx_categories:
+  - science
+
+engines:
+  - arxiv
+  - google scholar
+  - crossref
+  - google
+  - bing
+
+prefer_sites:
+  - arxiv.org
+  - physics.stackexchange.com
+  - aps.org
+  - iopscience.iop.org
+
+blacklist:
+  - pinterest.com
+  - quora.com
+  - brainly.com

@@ -1,0 +1,32 @@
+# Category: study
+# General-purpose studying / coursework / reference lookups
+
+name: study
+description: "General study & coursework reference search"
+
+# Which searxng categories to pull from
+searx_categories:
+  - general
+  - science
+
+# Which searxng engines to restrict this query to (empty = use category default)
+engines:
+  - google
+  - bing
+  - duckduckgo
+  - wikipedia
+  - wikibooks
+
+# Sites to prefer are just suggestions - not enforced, add to "boost" list
+# if you build that feature later.
+boost_sites: []
+
+# Domains/hosts to always drop from results for THIS category.
+# Supports plain hostnames and simple wildcard prefixes ("*.example.com").
+blacklist:
+  - pinterest.com
+  - quora.com
+  - answers.com
+  - coursehero.com
+  - studocu.com
+  - chegg.com

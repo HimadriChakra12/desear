@@ -1,0 +1,32 @@
+# Category: research-intl
+# General academic / international research search
+
+name: research-intl
+description: "International academic research search"
+
+searx_categories:
+  - science
+  - general
+
+engines:
+  - google scholar
+  - crossref
+  - semantic scholar
+  - arxiv
+  - bing
+  - duckduckgo
+
+prefer_sites:
+  - arxiv.org
+  - ncbi.nlm.nih.gov
+  - jstor.org
+  - sciencedirect.com
+  - nature.com
+  - springer.com
+  - ieee.org
+
+blacklist:
+  - pinterest.com
+  - quora.com
+  - academia.edu   # paywalled/spam-heavy reuploads, adjust to taste
+  - researchgate.net  # optional: uncomment/remove per your preference

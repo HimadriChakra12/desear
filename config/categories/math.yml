@@ -1,0 +1,24 @@
+name: math
+description: "Mathematics-focused search"
+
+searx_categories:
+  - science
+
+engines:
+  - arxiv
+  - google scholar
+  - google
+  - bing
+
+prefer_sites:
+  - math.stackexchange.com
+  - mathoverflow.net
+  - arxiv.org
+  - wolframalpha.com
+  - mathworld.wolfram.com
+
+blacklist:
+  - pinterest.com
+  - quora.com
+  - brainly.com
+  - chegg.com
