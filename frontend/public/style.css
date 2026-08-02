@@ -147,7 +147,29 @@ main#results { display: flex; flex-direction: column; }
   color: var(--dim);
   font-size: 13px;
   margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
+.result .snippet.expanded {
+  display: block;
+  -webkit-line-clamp: unset;
+  overflow: visible;
+}
+.result .snippet-toggle {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--accent);
+  opacity: 0.75;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: var(--mono);
+  padding: 0;
+}
+.result .snippet-toggle:hover { opacity: 1; }
 .result .engine {
   display: inline-block;
   margin-top: 6px;

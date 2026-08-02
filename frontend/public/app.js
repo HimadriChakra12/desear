@@ -99,14 +99,23 @@ function renderResults() {
     const div = document.createElement("div");
     div.className = "result";
     div.dataset.index = i;
+    const content = r.content || "";
+    const isLong = content.length > 220;
     div.innerHTML = `
       <span class="idx">${i + 1}</span>
       <a class="title" href="${escapeAttr(r.url)}" target="_blank" rel="noopener">${escapeHtml(r.title || r.url)}</a>
       <span class="url">${escapeHtml(r.url)}</span>
-      <p class="snippet">${escapeHtml(r.content || "")}</p>
+      <p class="snippet">${escapeHtml(content)}</p>
+      ${isLong ? '<button type="button" class="snippet-toggle">show more</button>' : ""}
       ${r.engine ? `<span class="engine">${escapeHtml(r.engine)}</span>` : ""}
     `;
     div.addEventListener("click", (e) => {
+      if (e.target.classList.contains("snippet-toggle")) {
+        const snippetEl = div.querySelector(".snippet");
+        const expanded = snippetEl.classList.toggle("expanded");
+        e.target.textContent = expanded ? "show less" : "show more";
+        return;
+      }
       if (e.target.tagName !== "A") openResult(i, false);
     });
     div.addEventListener("mouseenter", () => select(i, false));
