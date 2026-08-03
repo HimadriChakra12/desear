@@ -16,7 +16,7 @@ services:
     depends_on:
       - redis
     environment:
-      - SEARXNG_BASE_URL=http://localhost:8080/
+      - SEARXNG_BASE_URL=http://localhost:7070/
       - SEARXNG_REDIS_URL=redis://redis:6379/0
     volumes:
       - ./config/searxng:/etc/searxng:rw
@@ -26,7 +26,7 @@ services:
     # Not published to the host on purpose - only the wrapper talks to it.
     # Uncomment below if you want to hit raw searxng directly for debugging.
     # ports:
-    #   - "8080:8080"
+    #   - "7070:7070"
 
   wrapper:
     build: ./wrapper
@@ -35,7 +35,7 @@ services:
     depends_on:
       - searxng
     environment:
-      - SEARXNG_URL=http://searxng:8080
+      - SEARXNG_URL=http://searxng:7070
       - CATEGORIES_DIR=/config/categories
       - DATA_DIR=/data
       # Tune result quality vs quantity - see wrapper/app.py for details.
