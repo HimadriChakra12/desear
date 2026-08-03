@@ -38,6 +38,10 @@ services:
       - SEARXNG_URL=http://searxng:8080
       - CATEGORIES_DIR=/config/categories
       - DATA_DIR=/data
+      # Tune result quality vs quantity - see wrapper/app.py for details.
+      - DEFAULT_RESULT_LIMIT=10
+      - MAX_RESULT_LIMIT=25
+      - DEFAULT_RELEVANCE_CUTOFF=0.35
     volumes:
       - ./config/categories:/config/categories:ro
       - ./data/wrapper:/data:rw

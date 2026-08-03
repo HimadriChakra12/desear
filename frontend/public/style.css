@@ -72,18 +72,28 @@ header {
   margin-top: 8px;
 }
 
-#help-btn {
+#help-btn, #lang-btn {
   background: none;
   border: 1px solid var(--border);
   color: var(--dim);
   border-radius: 3px;
-  width: 20px;
-  height: 20px;
   cursor: pointer;
   font-family: var(--mono);
   line-height: 1;
 }
-#help-btn:hover { color: var(--text); border-color: var(--dim); }
+#help-btn {
+  width: 20px;
+  height: 20px;
+}
+#lang-btn {
+  height: 20px;
+  padding: 0 8px;
+  font-size: 11px;
+  margin-right: 6px;
+  text-transform: uppercase;
+}
+#help-btn:hover, #lang-btn:hover { color: var(--text); border-color: var(--dim); }
+#lang-btn.active { color: var(--accent); border-color: var(--accent-dim); }
 
 nav#tabs {
   display: flex;

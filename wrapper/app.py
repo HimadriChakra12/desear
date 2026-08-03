@@ -69,12 +69,21 @@ def is_blacklisted(url, blacklist):
 
 
 def build_query(base_query, prefer_sites):
-    if not prefer_sites:
-        return base_query
-    # Soft-bias toward preferred sites using an OR group of site: filters.
-    # This nudges ranking without excluding everything else.
-    or_group = " OR ".join(f"site:{s}" for s in prefer_sites)
-    return f"{base_query} ({or_group})"
+    # NOTE: we intentionally do NOT inject a "(site:a OR site:b ...)" clause
+    # into the query text here anymore. A single SearXNG request sends the
+    # same query string to every engine configured for that category at
+    # once - Google-style site: syntax is only understood by web-search
+    # engines (google, bing, duckduckgo, ...). API-based engines like
+    # arxiv, crossref, pubmed, and semantic scholar treat "site:", "OR",
+    # and the site list as literal keywords, which corrupts the query and
+    # returns loosely-related/unrelated results instead of a clean match.
+    # prefer_sites is kept in category YAML files as documentation of
+    # intent / for potential future per-engine query building, but has no
+    # effect on the actual query right now. Use `engines:` and
+    # `searx_categories:` in each category file to bias results instead -
+    # that's applied safely at the SearXNG parameter level, not the query
+    # text level.
+    return base_query
 
 
 def log_query(category, q, kept, dropped):
@@ -111,11 +120,28 @@ def categories():
     })
 
 
+DEFAULT_LIMIT = int(os.environ.get("DEFAULT_RESULT_LIMIT", "10"))
+MAX_LIMIT = int(os.environ.get("MAX_RESULT_LIMIT", "25"))
+# Drop results scoring below this fraction of the top kept result's score -
+# cuts the long, loosely-matched tail (e.g. crossref grabbing anything with
+# incidental keyword overlap) without needing per-engine tuning.
+DEFAULT_RELEVANCE_CUTOFF = float(os.environ.get("DEFAULT_RELEVANCE_CUTOFF", "0.35"))
+
+ALLOWED_LANGS = {"en", "bn", "all"}
+
+
 @app.route("/search/<category>")
 def search(category):
     q = request.args.get("q", "").strip()
     if not q:
         return jsonify({"error": "missing ?q="}), 400
+
+    lang = request.args.get("lang", "en").strip().lower()
+    if lang not in ALLOWED_LANGS:
+        return jsonify({
+            "error": f"unsupported lang '{lang}'",
+            "allowed": sorted(ALLOWED_LANGS),
+        }), 400
 
     cfgs = load_categories()
     cfg = cfgs.get(category)
@@ -130,12 +156,28 @@ def search(category):
     prefer_sites = cfg.get("prefer_sites") or cfg.get("boost_sites") or []
     blacklist = cfg.get("blacklist") or []
 
+    # Per-category overrides, falling back to global defaults; a request
+    # can further narrow (but not widen past MAX_LIMIT) via ?limit=.
+    limit = cfg.get("max_results", DEFAULT_LIMIT)
+    try:
+        limit = min(int(request.args.get("limit", limit)), MAX_LIMIT)
+    except ValueError:
+        limit = min(limit, MAX_LIMIT)
+    relevance_cutoff = cfg.get("relevance_cutoff", DEFAULT_RELEVANCE_CUTOFF)
+
     full_query = build_query(q, prefer_sites)
 
     params = {
         "q": full_query,
         "format": "json",
     }
+    if lang == "en":
+        params["language"] = "en"
+    # 'bn': SearXNG's bundled locale schema doesn't include a 'bn' code,
+    # so we can't pass it as language= without crashing the request -
+    # leave unrestricted; Bangla-script queries still return Bangla
+    # results fine without a formal language filter.
+    # 'all': unrestricted, same as above.
     if engines:
         params["engines"] = ",".join(engines)
     if searx_categories:
@@ -148,28 +190,53 @@ def search(category):
     except requests.RequestException as e:
         return jsonify({"error": f"searxng request failed: {e}"}), 502
 
+    # SearXNG already returns results score-sorted (highest relevance first).
     results = raw.get("results", [])
-    kept, dropped = [], 0
+    kept, dropped_blacklist = [], 0
     for item in results:
         url = item.get("url", "")
         if is_blacklisted(url, blacklist):
-            dropped += 1
+            dropped_blacklist += 1
             continue
         kept.append({
             "title": item.get("title"),
             "url": url,
             "content": item.get("content"),
             "engine": item.get("engine"),
+            "score": item.get("score", 0),
         })
 
-    log_query(category, q, len(kept), dropped)
+    # Relevance cutoff: drop anything scoring below relevance_cutoff * top
+    # score, so a handful of accurate matches beats a long noisy tail.
+    if kept and relevance_cutoff > 0:
+        top_score = kept[0]["score"] or 0
+        if top_score > 0:
+            before = len(kept)
+            kept = [k for k in kept if (k["score"] or 0) >= relevance_cutoff * top_score]
+            dropped_low_relevance = before - len(kept)
+        else:
+            dropped_low_relevance = 0
+    else:
+        dropped_low_relevance = 0
+
+    dropped_over_limit = max(0, len(kept) - limit)
+    kept = kept[:limit]
+
+    # Don't leak the internal score field to clients.
+    for k in kept:
+        k.pop("score", None)
+
+    log_query(category, q, len(kept), dropped_blacklist)
 
     return jsonify({
         "category": category,
         "query": q,
+        "lang": lang,
         "effective_query": full_query,
         "result_count": len(kept),
-        "dropped_blacklisted": dropped,
+        "dropped_blacklisted": dropped_blacklist,
+        "dropped_low_relevance": dropped_low_relevance,
+        "dropped_over_limit": dropped_over_limit,
         "results": kept,
     })
 

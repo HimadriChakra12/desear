@@ -13,12 +13,29 @@ const tabsEl = el("#tabs");
 const metaEl = el("#result-meta");
 const emptyStateEl = el("#empty-state");
 const helpOverlay = el("#help-overlay");
+const langBtn = el("#lang-btn");
+
+const LANGS = ["en", "bn", "all"]; // English, Bangla, unrestricted
 
 let categories = [];       // ordered list of {key, description}
 let activeCategory = null;
 let results = [];          // current result set
 let selected = -1;         // selected result index
 let lastKeyG = 0;           // for 'gg' detection
+let lang = localStorage.getItem("search-lang") || "en";
+
+function renderLang() {
+  langBtn.textContent = lang;
+  langBtn.classList.toggle("active", lang !== "all");
+}
+
+function cycleLang() {
+  const idx = LANGS.indexOf(lang);
+  lang = LANGS[(idx + 1) % LANGS.length];
+  localStorage.setItem("search-lang", lang);
+  renderLang();
+  if (qInput.value.trim()) runSearch();
+}
 
 async function loadCategories() {
   const res = await fetch("/api/categories");
@@ -71,7 +88,7 @@ async function runSearch() {
   selected = -1;
 
   try {
-    const res = await fetch(`/api/search/${encodeURIComponent(activeCategory)}?q=${encodeURIComponent(q)}`);
+    const res = await fetch(`/api/search/${encodeURIComponent(activeCategory)}?q=${encodeURIComponent(q)}&lang=${encodeURIComponent(lang)}`);
     const data = await res.json();
     if (data.error) {
       resultsEl.innerHTML = `<div class="error">${escapeHtml(data.error)}</div>`;
@@ -79,8 +96,11 @@ async function runSearch() {
       return;
     }
     results = data.results || [];
-    metaEl.textContent = `${data.result_count} results` +
-      (data.dropped_blacklisted ? ` \u00b7 ${data.dropped_blacklisted} blacklisted hidden` : "");
+    const parts = [`${data.result_count} results`];
+    if (data.dropped_blacklisted) parts.push(`${data.dropped_blacklisted} blacklisted hidden`);
+    if (data.dropped_low_relevance) parts.push(`${data.dropped_low_relevance} low-relevance hidden`);
+    if (data.dropped_over_limit) parts.push(`${data.dropped_over_limit} beyond limit`);
+    metaEl.textContent = parts.join(" \u00b7 ");
     renderResults();
     if (results.length > 0) select(0);
   } catch (e) {
@@ -118,20 +138,16 @@ function renderResults() {
       }
       if (e.target.tagName !== "A") openResult(i, false);
     });
-    div.addEventListener("mouseenter", () => select(i, false));
     resultsEl.appendChild(div);
   });
 }
 
-function select(i, scroll = true) {
+function select(i) {
   if (i < 0 || i >= results.length) return;
   selected = i;
   document.querySelectorAll(".result").forEach((el2) => el2.classList.remove("selected"));
   const node = resultsEl.querySelector(`.result[data-index="${i}"]`);
-  if (node) {
-    node.classList.add("selected");
-    if (scroll) node.scrollIntoView({ block: "center", behavior: "smooth" });
-  }
+  if (node) node.classList.add("selected");
 }
 
 function openResult(i, newTab) {
@@ -165,6 +181,7 @@ el("#search-form").addEventListener("submit", (e) => {
 });
 
 el("#help-btn").addEventListener("click", () => toggleHelp());
+langBtn.addEventListener("click", () => cycleLang());
 helpOverlay.addEventListener("click", (e) => {
   if (e.target === helpOverlay) toggleHelp(false);
 });
@@ -189,6 +206,9 @@ document.addEventListener("keydown", (e) => {
       break;
     case "?":
       toggleHelp(true);
+      break;
+    case "L":
+      cycleLang();
       break;
     case "j":
     case "ArrowDown":
@@ -239,6 +259,7 @@ document.addEventListener("keydown", (e) => {
 
 // ---- init ----
 (async function init() {
+  renderLang();
   await loadCategories();
   emptyStateEl.classList.remove("hidden");
   qInput.focus();
